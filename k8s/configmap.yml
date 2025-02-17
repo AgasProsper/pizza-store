@@ -5,5 +5,5 @@ metadata:
 data:
   DB_USER: yugabyte
   DB_PASSWORD: yugabyte
-  DB_URL: "jdbc:postgresql://yugabyte:5433/yugabyte"
-
+  DB_URL: jdbc:postgresql://yugabytedb:5433/yugabyte?user=yugabyte&password=yugabyte 
+  TRACKER_SERVICE_PORT: "8082"

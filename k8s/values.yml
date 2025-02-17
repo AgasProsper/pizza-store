@@ -1,0 +1,17 @@
+resource:
+  master:
+    requests:
+      cpu: "250m"  # Reduce CPU request
+      memory: "512Mi"  # Reduce Memory request
+    limits:
+      cpu: "500m"  # Reduce CPU limit
+      memory: "1Gi"  # Reduce Memory limit
+
+  tserver:
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+

@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: core-pattern-fix
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      name: core-pattern-fix
+  template:
+    metadata:
+      labels:
+        name: core-pattern-fix
+    spec:
+      hostPID: true
+      containers:
+      - name: core-pattern-fix
+        image: busybox
+        command:
+          - sh
+          - -c
+          - "echo '/var/core.%e.%p' > /proc/sys/kernel/core_pattern"
+        securityContext:
+          privileged: true
+      restartPolicy: Always
+

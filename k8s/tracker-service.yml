@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: tracker-service
-          image: tracker-service
+          image: prosperagada/piza_app_tracker-service:0.1
           envFrom:
             - configMapRef:
                 name: database-config

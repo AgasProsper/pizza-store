@@ -1,17 +1,16 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: yugabyte
+  name: yugabytedb
 spec:
-  serviceName: "yugabyte"
   replicas: 1
   selector:
     matchLabels:
-      app: yugabyte
+      app: yugabytedb
   template:
     metadata:
       labels:
-        app: yugabyte
+        app: yugabytedb
     spec:
       containers:
         - name: yugabyte
@@ -20,22 +19,55 @@ spec:
           ports:
             - containerPort: 5433
           volumeMounts:
-            - name: data
-              mountPath: /var/lib/yugabyte
+            - mountPath: /var/lib/yugabytedbql/data
+              name: yugabytedbdata
       volumes:
-        - name: data
+        - name: yugabytedbdata
           persistentVolumeClaim:
-            claimName: yugabyte-pvc
+            claimName: yugabytedb-volume-claim
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: yugabyte
+  name: yugabytedb
+  labels:
+    app: yugabytedb
 spec:
-  selector:
-    app: yugabyte
   ports:
-    - name: ysql
-      port: 5433
-      targetPort: 5433
+    - port: 5433
+  selector:
+    app: yugabytedb
 
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: yugabytedb-volume
+  labels:
+    type: local
+    app: yugabytedb
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /data/yugabytedbql
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: yugabytedb-volume-claim
+  labels:
+    app: yugabytedb
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
