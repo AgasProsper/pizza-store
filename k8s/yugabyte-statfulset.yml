@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: yugabyte
+spec:
+  serviceName: "yugabyte"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yugabyte
+  template:
+    metadata:
+      labels:
+        app: yugabyte
+    spec:
+      containers:
+        - name: yugabyte
+          image: yugabytedb/yugabyte:2.25.0.0-b489
+          command: [ "bin/yugabyted", "start", "--background=false", "--daemon=false" ]
+          ports:
+            - containerPort: 5433
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/yugabyte
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: yugabyte-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yugabyte
+spec:
+  selector:
+    app: yugabyte
+  ports:
+    - name: ysql
+      port: 5433
+      targetPort: 5433
+
