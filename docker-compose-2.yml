@@ -1,0 +1,77 @@
+version: "3.3"
+
+services:
+  yugabyte:
+    image: yugabytedb/yugabyte:2.25.0.0-b489
+    container_name: yugabyte
+    networks:
+      - java-net
+    ports:
+      - "7000:7000"
+      - "9000:9000"
+      - "15433:15433"
+      - "5433:5433"
+      - "9042:9042"
+    command: [ "bin/yugabyted", "start", "--background=false", "--daemon=false" ]
+    volumes:
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "ysqlsh -h yugabyte -p 5433 -c 'SELECT 1;'"]
+      interval: 10s
+      retries: 5
+
+  discovery-server:
+    image: pizza-store-spring-cloud_discovery-server
+    container_name: discovery-server
+    networks:
+      - java-net
+    ports:
+      - "8761:8761"
+
+  api-gateway:
+    image: api-gateway
+    container_name: api-gateway
+    networks:
+      - java-net
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - DISCOVERY_SERVER_HOST=discovery-server
+
+  kitchen-service:
+    image: kitchen-service
+    container_name: kitchen-service
+    networks:
+      - java-net
+    ports:
+      - "8081:8081"
+    restart: always
+    environment:
+      - DISCOVERY_SERVER_HOST=discovery-server
+      - DB_USER=yugabyte
+      - DB_PASSWORD=yugabyte
+      - DB_URL="jdbc:postgresql://yugabyte:5433/yugabyte?user=yugabyte&password=yugabyte"
+    depends_on:
+      - yugabyte
+
+  traker-service:
+    image: traker-service
+    container_name: tracker-service
+    networks:
+      - java-net
+    ports:
+      - "8082:8082"
+    restart: always
+    environment:
+      - DISCOVERY_SERVER_HOST=discovery-server
+      - DB_USER=yugabyte
+      - DB_PASSWORD=yugabyte
+      - DB_URL="jdbc:postgresql://yugabyte:5433/yugabyte?user=yugabyte&password=yugabyte"
+    depends_on:
+      - yugabyte
+
+networks:
+  java-net:
+    driver: bridge
+
