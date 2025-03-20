@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opa-policy
+  namespace: default
+data:
+  authz.rego: |
+    package httpapi.authz
+
+    default allow = false
+
+    allow {
+      input.method == "GET"
+      input.path == "/"
+      input.headers.authorization == "successful"
+    }
+

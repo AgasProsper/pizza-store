@@ -1,0 +1,22 @@
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: httpbin-route
+spec:
+  http:
+  - name: httpbin
+    match:
+      hosts:
+        - local.httpbin.org
+      paths:
+        - /*
+    backends:
+      - serviceName: httpbin
+        servicePort: 80
+    plugins:
+      - name: open-policy-agent
+        enable: true
+        config:
+          opa_server: "http://opa.default.svc.cluster.local:8181"
+          policy_uri: "/v1/data/httpapi/authz"
+          with_headers: trued

@@ -1,0 +1,20 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: demo-cluster
+  region: us-west-2  # Replace with your desired AWS region
+
+nodeGroups:
+  - name: demo-nodegroup
+    instanceType: m5.2xlarge
+    desiredCapacity: 3
+    minSize: 0
+    maxSize: 3
+    spot: true  # Ensures Spot instances are used
+    ssh:
+      allow: true  # Optional: Allow SSH access to the worker nodes
+      publicKeyName: /home/ec2-user/.ssh/authorized_keys  # Optional: Replace with your EC2 SSH key pair name
+    volumeSize: 20  # Optional: Specify the EBS volume size (in GB)
+    ami: auto  # Optional: Use the default AMI or specify your own
+
